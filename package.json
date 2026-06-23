@@ -1,0 +1,9 @@
+{
+  "name": "dijkstra-visualizer-coursework",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node tests/unit-tests.js",
+    "check": "node -e \"const{execSync}=require('child_process'),fs=require('fs');let bad=0;for(const f of fs.readdirSync('js').filter(f=>f.endsWith('.js'))){try{execSync('node --check js/'+f,{stdio:'pipe'})}catch(e){bad++;console.error('SYNTAX ERROR in js/'+f+':\\n'+e.stderr.toString())}}process.exit(bad?1:(console.log('All JS files OK'),0))\""
+  }
+}

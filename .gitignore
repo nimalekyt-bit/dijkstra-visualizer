@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Static hosting and audit artifacts
+.vercel/
+.codex-audit/
+
+# Python/desktop build artifacts
+desktop/build/
+desktop/dist/
+desktop/__pycache__/
+__pycache__/
+*.pyc
+
+# Local documents and backups
+*.zip
+*.rar
+*.log
+*.pid
+*.doc
+*.docx
+saveme/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

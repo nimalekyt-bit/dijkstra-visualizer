@@ -1,0 +1,664 @@
+/* ============================================================================
+ * polish.css — Визуальная полировка и анимации
+ * ============================================================================
+ * Подключается ПОСЛЕ style.css. Содержит:
+ *  - переливы и плавные переходы сегментированных вкладок;
+ *  - аккуратную «облачную» навигацию в разделе «Теория»;
+ *  - компактные метрики в шапке страниц;
+ *  - улучшенный таймлайн истории;
+ *  - карточки применения и «О проекте» с мягким свечением;
+ *  - shimmer-переливы кнопок;
+ *  - дополнительную адаптивность.
+ * Все эффекты уважают prefers-reduced-motion.
+ * ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+ * 1. СЕГМЕНТИРОВАННЫЕ ВКЛАДКИ (главное меню) — скользящий индикатор + переливы
+ * ------------------------------------------------------------------------- */
+.segmented-tabs {
+    position: relative;
+}
+
+/* Подвижная подсветка, которая плавно «переливается» между вкладками */
+.seg-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    box-shadow: 0 6px 18px -7px rgba(37, 99, 235, 0.6), var(--glow-accent);
+    transition: transform .42s cubic-bezier(0.22, 1, 0.36, 1),
+                width .42s cubic-bezier(0.22, 1, 0.36, 1),
+                height .42s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    will-change: transform, width;
+}
+.seg-indicator.no-anim { transition: none; }
+
+.segmented-tabs .nav-link {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transition: color .25s ease, transform .2s ease;
+}
+
+/* Диагональный «блик», пробегающий при наведении */
+.segmented-tabs .nav-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(120deg,
+        transparent 18%,
+        rgba(255, 255, 255, 0.28) 50%,
+        transparent 82%);
+    transform: translateX(-130%);
+    transition: transform .6s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.segmented-tabs .nav-link:not(.active):hover::before { transform: translateX(130%); }
+
+/* Активная кнопка: фон прозрачный — подсветку рисует скользящий индикатор */
+.segmented-tabs .nav-link.active,
+body.dark-theme .segmented-tabs .nav-link.active {
+    background: transparent !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    transform: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. НАВИГАЦИЯ В РАЗДЕЛЕ «ТЕОРИЯ» — компактные «таблетки» по центру
+ * ------------------------------------------------------------------------- */
+#tab-theory .theory-nav {
+    border-radius: 16px;
+    border: 1px solid var(--ui-panel-border);
+    background: color-mix(in srgb, var(--ui-surface) 86%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--ui-shadow-lg);
+    padding: 10px;
+}
+
+#tab-theory .theory-nav-inner {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 7px 8px;
+    overflow: visible;
+}
+
+#tab-theory .theory-nav-link {
+    min-height: 34px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+    transition: color .2s ease, background .2s ease,
+                border-color .2s ease, transform .18s ease, box-shadow .2s ease;
+}
+
+#tab-theory .theory-nav-link:hover {
+    transform: translateY(-1px);
+    border-color: var(--ui-accent-border);
+    background: var(--ui-accent-soft);
+}
+
+#tab-theory .theory-nav-link.active {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 5px 16px -6px rgba(37, 99, 235, 0.65);
+}
+
+#tab-theory .theory-nav-link i,
+#tab-theory .theory-nav-link svg {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 auto;
+}
+
+/* Чуть больше воздуха над первым разделом, чтобы прилипшая навигация
+   не «съедала» заголовок при клике по пунктам */
+#tab-theory .theory-section { scroll-margin-top: 130px; }
+
+/* ---------------------------------------------------------------------------
+ * 3. ШАПКА СТРАНИЦ — единая аккуратная панель метрик (Темы / Формат / Фокус)
+ * ------------------------------------------------------------------------- */
+.workspace-header-metrics {
+    display: flex;
+    grid-template-columns: none;
+    gap: 0;
+    min-width: 0;
+    align-self: center;
+    border: 1px solid var(--ui-panel-border);
+    border-radius: 14px;
+    background: var(--ui-surface-2);
+    overflow: hidden;
+    box-shadow: var(--ui-shadow);
+}
+
+.workspace-metric {
+    min-height: 0;
+    flex: 1 1 0;
+    padding: 12px 20px;
+    border: none;
+    border-right: 1px solid var(--ui-panel-border);
+    border-radius: 0;
+    background: transparent;
+    align-items: center;
+    text-align: center;
+    transition: background .2s ease;
+}
+
+.workspace-metric:last-child { border-right: none; }
+.workspace-metric:hover { background: var(--ui-accent-soft); transform: none; box-shadow: none; }
+
+.workspace-metric span {
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+    order: 1;
+}
+
+.workspace-metric strong {
+    order: 2;
+    margin-top: 4px;
+    font-size: 1.15rem;
+    color: var(--ui-accent);
+    line-height: 1.1;
+}
+
+/* ---------------------------------------------------------------------------
+ * 4. ТАЙМЛАЙН ИСТОРИИ — чистый стек карточек (без двойных блоков и кривой полосы)
+ * ------------------------------------------------------------------------- */
+/* В разделе теории каждый пункт уже оформлен как карточка, поэтому внешнюю
+   вертикальную линию и внешние точки убираем — они смотрелись криво. */
+#tab-theory .timeline { padding-left: 0; }
+#tab-theory .timeline::before { display: none; }
+#tab-theory .timeline-marker { display: none; }
+
+#tab-theory .timeline-item {
+    padding: 13px 16px 13px 18px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--ui-accent);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+#tab-theory .timeline-item:last-child { margin-bottom: 0; }
+
+#tab-theory .timeline-item:hover {
+    transform: translateX(3px);
+    box-shadow: var(--ui-shadow);
+    border-left-color: var(--purple);
+}
+
+/* Содержимое внутри карточки — без собственного фона/рамки, чтобы не было
+   «карточки в карточке». */
+#tab-theory .timeline-content {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+#tab-theory .timeline-content h4 {
+    color: var(--ui-accent);
+    margin-bottom: 4px;
+}
+
+/* ---------------------------------------------------------------------------
+ * 5. КАРТОЧКИ ПРИМЕНЕНИЯ — мягкое свечение и живая иконка
+ * ------------------------------------------------------------------------- */
+.application-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-panel-border);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.application-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--cyan));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .3s ease;
+}
+
+.application-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--ui-accent-border);
+    box-shadow: 0 18px 40px -22px rgba(37, 99, 235, 0.55), var(--ui-shadow-lg);
+}
+
+.application-card:hover::before { transform: scaleX(1); }
+
+.application-icon { transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1); }
+.application-card:hover .application-icon { transform: scale(1.08) rotate(-4deg); }
+
+.example-tag { transition: background .2s ease, color .2s ease, transform .2s ease; }
+.example-tag:hover { transform: translateY(-1px); }
+
+/* ---------------------------------------------------------------------------
+ * 6. КАРТОЧКИ «О ПРОЕКТЕ» — единый стиль свечения
+ * ------------------------------------------------------------------------- */
+.about-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.about-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--purple));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .3s ease;
+}
+
+.about-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--ui-accent-border);
+    box-shadow: 0 18px 40px -22px rgba(37, 99, 235, 0.5), var(--ui-shadow-lg);
+}
+
+.about-card:hover::before { transform: scaleX(1); }
+
+/* ---------------------------------------------------------------------------
+ * 7. SHIMMER-ПЕРЕЛИВ ОСНОВНЫХ КНОПОК
+ * ------------------------------------------------------------------------- */
+.btn-primary-custom,
+.btn-primary-gradient {
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.btn-primary-custom::after,
+.btn-primary-gradient::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: linear-gradient(120deg,
+        transparent 25%,
+        rgba(255, 255, 255, 0.35) 50%,
+        transparent 75%);
+    transform: translateX(-130%);
+    transition: transform .65s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.btn-primary-custom:hover::after,
+.btn-primary-gradient:hover::after { transform: translateX(130%); }
+
+.btn-primary-custom:hover { transform: translateY(-1px); }
+
+/* Иконочные кнопки в шапке — мягкий поворот/подсветка */
+.controls .btn-icon {
+    transition: transform .2s ease, color .2s ease, background .2s ease;
+}
+.controls .btn-icon:hover { transform: translateY(-1px) scale(1.05); }
+
+/* ---------------------------------------------------------------------------
+ * 8. АДАПТИВНОСТЬ
+ * ------------------------------------------------------------------------- */
+@media (max-width: 992px) {
+    .workspace-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .workspace-header-metrics {
+        width: 100%;
+    }
+}
+
+@media (max-width: 680px) {
+    .workspace-page-header h1 { font-size: clamp(1.3rem, 6vw, 1.7rem); }
+    .workspace-metric { padding: 10px 8px; }
+    .workspace-metric span { font-size: 0.56rem; }
+    .workspace-metric strong { font-size: 1rem; }
+
+    #tab-theory .theory-nav-link { font-size: 0.74rem; padding: 5px 10px; }
+}
+
+@media (max-width: 480px) {
+    .application-card, .about-card { border-radius: 12px; }
+}
+
+/* ---------------------------------------------------------------------------
+ * 9. УВАЖЕНИЕ К prefers-reduced-motion
+ * ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .segmented-tabs .nav-link::before,
+    .btn-primary-custom::after,
+    .btn-primary-gradient::after {
+        transition: none;
+        display: none;
+    }
+    .seg-indicator { transition: none !important; }
+    .segmented-tabs .nav-link,
+    .segmented-tabs .nav-link.active,
+    .application-card,
+    .about-card,
+    .timeline-content,
+    .workspace-metric,
+    .btn-primary-custom,
+    #tab-theory .theory-nav-link {
+        transition: none;
+        transform: none;
+    }
+}
+
+
+/* ============================================================================
+ * 10. ПЛАВНЫЕ ПЕРЕХОДЫ МЕЖДУ СТРАНИЦАМИ (без прыжков и морганий)
+ * ============================================================================ */
+/* Причина прыжков: при переключении Bootstrap на миг делает ОБЕ панели
+   display:block, и они складываются в потоке. Решение — наложить панели
+   друг на друга, чтобы они кроссфейдились в одном месте. */
+
+/* Десктоп: все панели в одной ячейке грида (накладываются) */
+@media (min-width: 993px) {
+    #mainTabContent {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr);
+    }
+    #mainTabContent > .tab-pane {
+        grid-area: 1 / 1;
+        min-width: 0;
+    }
+}
+
+/* Мобайл: уходящая панель (active, но уже без show) убирается из потока,
+   чтобы входящая не «прыгала» вниз. */
+@media (max-width: 992px) {
+    #mainTabContent { position: relative; }
+    #mainTabContent > .tab-pane.active:not(.show) {
+        position: absolute;
+        inset: 0 0 auto 0;
+        width: 100%;
+        pointer-events: none;
+    }
+}
+
+/* Плавный кроссфейд по прозрачности (без вертикального сдвига всей панели) */
+.tab-content > .tab-pane.fade {
+    transition: opacity .3s ease;
+    will-change: opacity;
+}
+
+/* ============================================================================
+ * 11. УСТОЙЧИВАЯ АДАПТИВНАЯ ШАПКА (один ряд на любом экране)
+ * ============================================================================ */
+.floating-header-wrapper {
+    max-width: calc(100vw - 24px);
+}
+
+.floating-island {
+    flex-wrap: nowrap;
+    max-width: 100%;
+}
+
+/* Вкладки могут сжиматься и при нехватке места прокручиваться по горизонтали */
+.floating-island .segmented-tabs {
+    min-width: 0;
+    flex: 0 1 auto;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.floating-island .segmented-tabs::-webkit-scrollbar { display: none; }
+
+.floating-island .segmented-tabs .nav-link {
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.floating-island .logo { flex: 0 0 auto; }
+.floating-island .controls { flex: 0 0 auto; }
+
+/* --- Планшеты и ниже: компактнее --- */
+@media (max-width: 880px) {
+    .floating-header-wrapper {
+        left: 12px;
+        right: 12px;
+        transform: none;
+        max-width: none;
+    }
+    .floating-island {
+        width: 100%;
+        gap: 10px;
+        padding: 6px 12px;
+    }
+}
+
+/* --- Телефоны: логотип-иконка, вкладки только иконками --- */
+@media (max-width: 600px) {
+    .floating-island .logo span { display: none; }
+
+    .floating-island .segmented-tabs { flex: 1 1 auto; }
+
+    .floating-island .segmented-tabs .nav-link {
+        font-size: 0;          /* скрываем текстовую подпись */
+        gap: 0;
+        padding: 8px 11px;
+    }
+    .floating-island .segmented-tabs .nav-link i,
+    .floating-island .segmented-tabs .nav-link svg {
+        font-size: 1.05rem;
+        width: 18px;
+        height: 18px;
+    }
+
+    .floating-island .controls { gap: 4px; }
+    .floating-island .btn-icon {
+        width: 34px;
+        height: 34px;
+    }
+}
+
+/* ============================================================================
+ * 12. ПОЛНАЯ АДАПТАЦИЯ КОНСТРУКТОРА И АЛГОРИТМА ДЛЯ МОБИЛЬНЫХ
+ * ============================================================================ */
+/* На планшетах/телефонах плавающий полноэкранный макет (холст на весь экран
+   + парящие панели) непригоден. Перестраиваем вкладки в обычный вертикальный
+   поток: панель инструментов сверху, холст фиксированной высоты, боковая
+   панель снизу. Страница при этом нормально прокручивается. */
+@media (max-width: 992px) {
+    html, body { overflow: auto !important; height: auto !important; }
+
+    .main-content {
+        position: static !important;
+        inset: auto !important;
+        min-height: 100vh;
+        overflow: visible !important;
+        padding: 0 !important;
+    }
+
+    /* Канвас-вкладки теперь прокручиваются вместе со страницей */
+    #tab-constructor,
+    #tab-algorithm {
+        position: relative !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 84px 12px 28px !important;
+    }
+
+    .constructor-layout,
+    .algorithm-layout {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column;
+        height: auto !important;
+        gap: 12px;
+        overflow: visible !important;
+    }
+
+    .graph-main-area,
+    .algorithm-main {
+        position: relative !important;
+        inset: auto !important;
+        height: auto !important;
+        display: flex !important;
+        flex-direction: column;
+        gap: 12px;
+        overflow: visible !important;
+    }
+
+    /* Панель инструментов / контролы алгоритма — в обычный поток сверху */
+    .toolbar,
+    .algorithm-controls {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-wrap: wrap;
+        justify-content: center;
+        border-radius: 14px;
+        padding: 10px 12px !important;
+        order: 0;
+    }
+
+    /* Холст — обычный блок фиксированной высоты */
+    .cy-container-wrapper,
+    .cy-container-wrapper.cy-fill {
+        position: relative !important;
+        inset: auto !important;
+        width: 100% !important;
+        height: 56vh !important;
+        min-height: 320px !important;
+        max-height: 70vh;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        flex: none !important;
+        order: 1;
+    }
+
+    /* Боковая панель — на всю ширину, снизу, в обычном потоке */
+    .sidebar,
+    .sidebar-v2 {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        left: auto !important;
+        inset: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        pointer-events: auto !important;
+        padding-right: 0 !important;
+        margin: 0 !important;
+        order: 2;
+    }
+
+    /* Зум-кнопки остаются на холсте, миникарта скрывается (тесно) */
+    .cy-container-wrapper .zoom-controls {
+        left: 12px;
+        bottom: 12px;
+    }
+    .minimap-container { display: none !important; }
+
+    .cy-container-wrapper .graph-stats-overlay {
+        top: 12px;
+        left: 12px;
+    }
+}
+
+/* Контентные сетки гарантированно в одну колонку на узких экранах */
+@media (max-width: 720px) {
+    .applications-grid,
+    .about-grid,
+    .pros-cons-grid,
+    .performance-layout {
+        grid-template-columns: 1fr !important;
+    }
+
+    .workspace-page-header {
+        padding: 16px;
+    }
+}
+
+/* Очень узкие экраны: ужимаем внутренние отступы карточек */
+@media (max-width: 420px) {
+    .theory-card-body,
+    .about-card-body,
+    .application-card {
+        padding: 14px;
+    }
+
+    .workspace-metric { padding: 9px 6px; }
+    .workspace-metric span { font-size: 0.52rem; letter-spacing: 0.03em; }
+}
+
+/* Короткие «ландшафтные» экраны телефонов — уменьшаем вертикальные отступы */
+@media (max-height: 480px) and (orientation: landscape) {
+    .floating-header-wrapper { top: 8px; }
+    .workspace-page-header { padding: 12px 16px; }
+}
+
+
+/* ============================================================================
+ * 13. АДАПТИВНОСТЬ ВКЛАДКИ «АНАЛИЗ» (производительность)
+ * ============================================================================ */
+/* Двухколоночный блок (контролы + график) сворачивается в одну колонку */
+@media (max-width: 900px) {
+    #tab-performance .card-custom:first-child .card-body-custom {
+        grid-template-columns: 1fr;
+    }
+    #tab-performance .chart-container {
+        min-height: 320px;
+        height: 320px;
+    }
+}
+
+/* График никогда не шире контейнера */
+#tab-performance .chart-container { max-width: 100%; overflow: hidden; }
+#tab-performance .chart-container canvas { max-width: 100% !important; }
+
+/* ============================================================================
+ * 14. ГОРИЗОНТАЛЬНАЯ ПРОКРУТКА ТАБЛИЦ И КОДА НА УЗКИХ ЭКРАНАХ
+ * ============================================================================ */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* На узких экранах таблицы сохраняют читаемую минимальную ширину и
+   прокручиваются по горизонтали внутри своего контейнера, а не ломают вёрстку. */
+@media (max-width: 640px) {
+    .theory-table { min-width: 440px; }
+    .results-table { min-width: 560px; }
+}
+
+/* Псевдокод и блоки кода прокручиваются по горизонтали, длинные строки
+   не вылезают за пределы страницы */
+#tab-theory .pseudocode-container,
+#tab-theory pre,
+.code-block,
+pre.code {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}

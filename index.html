@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Интерактивная образовательная система для изучения и визуализации алгоритмов кратчайших путей на графах">
+    <title>Визуализатор алгоритмов на графах</title>
+    <link rel="icon" href="data:,">
+
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link href="vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome 6.5.1 -->
+    <link href="vendor/fontawesome/css/all.min.css" rel="stylesheet">
+
+    <!-- Local web fonts (Inter / Plus Jakarta Sans / JetBrains Mono, offline woff2) -->
+    <link href="assets/fonts/fonts.css" rel="stylesheet">
+
+    <!-- AOS (scroll animations) — optional -->
+    <link href="vendor/aos/aos.css" rel="stylesheet">
+
+    <!-- Local CSS -->
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/polish.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Aurora animated background (decorative, behind everything) -->
+<div class="aurora-bg" aria-hidden="true">
+    <span class="aurora-blob aurora-blob-1"></span>
+    <span class="aurora-blob aurora-blob-2"></span>
+    <span class="aurora-blob aurora-blob-3"></span>
+    <span class="aurora-grid"></span>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- FLOATING ISLAND HEADER -->
+<div class="floating-header-wrapper">
+    <nav class="floating-island">
+        <a class="logo" href="#">
+            <i data-lucide="network"></i>
+            <span>GraphLab</span>
+        </a>
+        
+        <div class="segmented-tabs nav nav-pills" id="mainTabs" role="tablist">
+            <button class="nav-link active" id="nav-constructor" data-bs-toggle="pill" data-bs-target="#tab-constructor" role="tab"><i data-lucide="pen-tool"></i> Конструктор</button>
+            <button class="nav-link" id="nav-algorithm" data-bs-toggle="pill" data-bs-target="#tab-algorithm" role="tab"><i data-lucide="play-circle"></i> Алгоритм</button>
+            <button class="nav-link" id="nav-performance" data-bs-toggle="pill" data-bs-target="#tab-performance" role="tab"><i data-lucide="bar-chart-2"></i> Анализ</button>
+            <button class="nav-link" id="nav-theory" data-bs-toggle="pill" data-bs-target="#tab-theory" role="tab"><i data-lucide="book-open"></i> Теория</button>
+            <button class="nav-link" id="nav-about" data-bs-toggle="pill" data-bs-target="#tab-about" role="tab"><i data-lucide="info"></i> О проекте</button>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-icon" id="btn-help" title="Помощь"><i data-lucide="help-circle"></i></button>
+            <button class="btn-icon" id="btn-theme-toggle" title="Сменить тему"><i data-lucide="moon"></i></button>
+            <button class="btn-icon" id="btn-fullscreen" title="Полноэкранный режим"><i data-lucide="maximize"></i></button>
+        </div>
+    </nav>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <div class="tab-content" id="mainTabContent">
+
+        <!-- ===== TAB 1: CONSTRUCTOR ===== -->
+        <div class="tab-pane fade show active" id="tab-constructor" role="tabpanel">
+            <div class="constructor-layout">
+                <!-- Graph area -->
+                <div class="graph-main-area">
+                    <!-- Toolbar -->
+                    <div class="toolbar">
+                        <div class="toolbar-group">
+                            <button class="btn-tool active" id="btn-select-mode" title="Выделение: перемещайте вершины и просматривайте соседей"><i data-lucide="mouse-pointer-2"></i><span class="btn-text">Выделение</span></button>
+                            <button class="btn-tool" id="btn-add-mode" title="Вершина: нажмите на рабочую область, чтобы добавить новую вершину"><i data-lucide="circle-dot"></i><span class="btn-text">Вершина</span></button>
+                            <button class="btn-tool" id="btn-edge-mode" title="Ребро: выберите две вершины и укажите вес ребра"><i data-lucide="move-horizontal"></i><span class="btn-text">Ребро</span></button>
+                            <button class="btn-tool" id="btn-delete-mode" title="Удалить: нажмите на вершину или ребро для удаления"><i data-lucide="eraser"></i><span class="btn-text">Удалить</span></button>
+                        </div>
+                        <div class="toolbar-divider"></div>
+                        <div class="toolbar-group">
+                            <button class="btn-tool" id="btn-undo" title="Отменить (Ctrl+Z)" aria-label="Отменить действие" disabled><i data-lucide="undo-2"></i></button>
+                            <button class="btn-tool" id="btn-redo" title="Повторить (Ctrl+Y)" aria-label="Повторить действие" disabled><i data-lucide="redo-2"></i></button>
+                        </div>
+                        <div class="toolbar-divider"></div>
+                        <div class="toolbar-group">
+                            <div class="graph-type-switch" title="Тип графа влияет на направление рёбер и расчёт кратчайших путей">
+                                <button class="switch-btn active" id="btn-undirected" title="Ребро работает в обе стороны">Неориентированный</button>
+                                <button class="switch-btn" id="btn-directed" title="Ребро работает только от источника к цели">Ориентированный</button>
+                            </div>
+                        </div>
+                        <div class="toolbar-divider"></div>
+                        <div class="toolbar-group">
+                            <button class="btn-tool" id="btn-layout-graph" title="Упорядочить граф: автоматически разложить вершины для лучшей читаемости" aria-label="Упорядочить граф"><i data-lucide="wand-2"></i></button>
+                            <button class="btn-tool" id="btn-center-graph" title="Центрировать граф в рабочей области" aria-label="Центрировать граф"><i data-lucide="crosshair"></i></button>
+                            <button class="btn-tool" id="btn-export-png" title="PNG: сохранить изображение текущего графа" aria-label="Экспортировать граф в PNG"><i data-lucide="camera"></i></button>
+                            <button class="btn-tool btn-danger-tool" id="btn-clear-graph" title="Очистить: удалить все вершины и рёбра"><i data-lucide="trash-2"></i><span class="btn-text">Очистить</span></button>
+                        </div>
+                    </div>
+
+                    <!-- Cytoscape Container -->
+                    <div class="cy-container-wrapper">
+                        <div id="cy"></div>
+                        <div class="minimap-container" id="minimap"></div>
+                        <!-- Graph stats overlay -->
+                        <div class="graph-stats graph-stats-overlay">
+                            <div class="stat-item"><i data-lucide="circle"></i> Вершин: <strong id="node-count">0</strong></div>
+                            <div class="stat-item"><i data-lucide="minus"></i> Рёбер: <strong id="edge-count">0</strong></div>
+                        </div>
+                        <div class="zoom-controls" id="zoom-controls">
+                            <button class="btn-zoom" id="btn-zoom-in" title="Приблизить" aria-label="Приблизить граф"><i data-lucide="plus"></i></button>
+                            <button class="btn-zoom" id="btn-zoom-out" title="Отдалить" aria-label="Отдалить граф"><i data-lucide="minus"></i></button>
+                            <button class="btn-zoom" id="btn-zoom-fit" title="Вписать граф" aria-label="Вписать граф"><i data-lucide="expand-arrows-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar v2 -->
+                <div class="sidebar sidebar-v2">
+                    <!-- Поиск — всегда виден -->
+                    <div class="sidebar-section sidebar-search" data-priority="1">
+                        <div class="section-header section-header-static">
+                            <span class="section-icon section-icon-search"><i data-lucide="search"></i></span>
+                            <span class="section-label">Поиск</span>
+                        </div>
+                        <div class="section-body">
+                            <div class="search-box">
+                                <input type="number" class="form-control-custom" id="input-search-node" placeholder="Номер вершины" min="0">
+                                <button class="btn-primary-custom btn-sm-custom" id="btn-search-node" title="Найти и приблизить вершину на графе"><i data-lucide="crosshair"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Соседи — всегда виден -->
+                    <div class="sidebar-section sidebar-neighbors" data-priority="2">
+                        <div class="section-header section-header-static">
+                            <span class="section-icon section-icon-neighbors"><i data-lucide="share-nodes"></i></span>
+                            <span class="section-label">Соседи</span>
+                        </div>
+                        <div class="section-body">
+                            <div id="neighbors-display" class="neighbors-display">
+                                <span class="hint-text">Кликните по вершине в режиме выделения</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Генерация — свёрнута по умолчанию -->
+                    <div class="sidebar-section sidebar-generate is-collapsed" data-priority="3">
+                        <div class="section-header">
+                            <span class="section-icon section-icon-generate"><i data-lucide="wand-2"></i></span>
+                            <span class="section-label">Генерация</span>
+                            <i class="fa fa-chevron-down sidebar-chevron" aria-hidden="true"></i>
+                        </div>
+                        <div class="section-body">
+                            <div class="generate-grid">
+                                <div class="gen-field">
+                                    <label class="form-label-custom">Вершин</label>
+                                    <input type="number" class="form-control-custom" id="input-gen-nodes" value="8" min="2" max="1000">
+                                </div>
+                                <div class="gen-field">
+                                    <label class="form-label-custom">Вес от</label>
+                                    <input type="number" class="form-control-custom" id="input-gen-min-weight" value="1" min="-999" max="999">
+                                </div>
+                                <div class="gen-field">
+                                    <label class="form-label-custom">Вес до</label>
+                                    <input type="number" class="form-control-custom" id="input-gen-max-weight" value="20" min="-999" max="999">
+                                </div>
+                            </div>
+                            <div class="gen-density">
+                                <label class="form-label-custom">Плотность <span id="density-value">0.4</span></label>
+                                <input type="range" class="form-range w-100" id="input-gen-density" min="0.1" max="1" step="0.05" value="0.4">
+                            </div>
+                            <button class="btn-primary-custom btn-block" id="btn-generate-graph"><i data-lucide="shuffle"></i> Сгенерировать</button>
+                        </div>
+                    </div>
+
+                    <!-- Примеры -->
+                    <div class="sidebar-section sidebar-examples is-collapsed" data-priority="4">
+                        <div class="section-header">
+                            <span class="section-icon section-icon-examples"><i data-lucide="folder-open"></i></span>
+                            <span class="section-label">Примеры</span>
+                            <i class="fa fa-chevron-down sidebar-chevron" aria-hidden="true"></i>
+                        </div>
+                        <div class="section-body" id="examples-list">
+                            <div class="empty-state"><p>Загрузка примеров...</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Сохранение -->
+                    <div class="sidebar-section sidebar-save" data-priority="5">
+                        <div class="section-header section-header-static">
+                            <span class="section-icon section-icon-save"><i data-lucide="save"></i></span>
+                            <span class="section-label">Сохранение</span>
+                        </div>
+                        <div class="section-body">
+                            <div class="save-buttons">
+                                <button class="btn-success-custom btn-sm-custom" id="btn-save-graph"><i data-lucide="save"></i> Сохранить</button>
+                                <button class="btn-outline-custom btn-sm-custom" id="btn-export-json"><i data-lucide="file-export"></i> JSON</button>
+                                <button class="btn-outline-custom btn-sm-custom" id="btn-import-json"><i data-lucide="file-import"></i> Импорт</button>
+                                <input type="file" id="input-import-file" accept=".json" style="display:none">
+                            </div>
+                            <div id="saved-graphs-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- История -->
+                    <div class="sidebar-section sidebar-history is-collapsed" data-priority="6">
+                        <div class="section-header section-header-between">
+                            <span>
+                                <span class="section-icon section-icon-history"><i data-lucide="clock-rotate-left"></i></span>
+                                <span class="section-label">История</span>
+                            </span>
+                            <div class="section-header-actions">
+                                <button class="btn-mini-link" id="btn-clear-history" type="button">Очистить</button>
+                                <i class="fa fa-chevron-down sidebar-chevron" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div class="section-body">
+                            <div id="action-history-list" class="action-history-list">
+                                <span class="hint-text">Действий пока нет</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB 2: ALGORITHM ===== -->
+        <div class="tab-pane fade" id="tab-algorithm" role="tabpanel">
+            <div class="algorithm-layout">
+                <div class="algorithm-main">
+                    <!-- Algorithm Controls -->
+                    <div class="algorithm-controls">
+                        <div class="control-group">
+                            <label class="control-label">Алгоритм:</label>
+                            <select class="form-select-custom select-algorithm" id="select-algorithm" title="Выберите алгоритм поиска кратчайшего пути">
+                                <option value="dijkstra">Дейкстра</option>
+                                <option value="bellman-ford">Беллмана-Форда</option>
+                                <option value="floyd-warshall">Флойда-Уоршелла</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Начало: <span class="inline-help" title="Вершина, от которой алгоритм начнёт считать расстояния"><i data-lucide="help-circle"></i></span></label>
+                            <select class="form-select-custom select-node" id="select-start-node" title="Выберите стартовую вершину"><option value="">—</option></select>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Конец: <span class="inline-help" title="Вершина, до которой нужно найти кратчайший путь"><i data-lucide="help-circle"></i></span></label>
+                            <select class="form-select-custom select-node" id="select-end-node" title="Выберите конечную вершину"><option value="">—</option></select>
+                        </div>
+                        <div class="toolbar-divider"></div>
+                        <div class="playback-buttons">
+                            <button class="btn-playback btn-play" id="btn-run-algorithm" title="Запуск: начать выполнение выбранного алгоритма" aria-label="Запустить алгоритм"><i data-lucide="play"></i></button>
+                            <button class="btn-playback" id="btn-pause-algorithm" title="Пауза: временно остановить визуализацию" aria-label="Пауза" disabled><i data-lucide="pause"></i></button>
+                            <button class="btn-playback" id="btn-resume-algorithm" title="Продолжить: возобновить автоматическую визуализацию" aria-label="Продолжить визуализацию" disabled><i data-lucide="fast-forward"></i></button>
+                            <button class="btn-playback" id="btn-step-back" title="Предыдущий шаг: вернуться к прошлому этапу алгоритма" aria-label="Предыдущий шаг" disabled><i data-lucide="step-backward"></i></button>
+                            <button class="btn-playback" id="btn-step-forward" title="Следующий шаг: показать следующий этап алгоритма" aria-label="Следующий шаг" disabled><i data-lucide="step-forward"></i></button>
+                            <button class="btn-playback" id="btn-reset-algorithm" title="Сброс: очистить результат и вернуть граф в исходное состояние" aria-label="Сбросить визуализацию" disabled><i data-lucide="undo-2"></i></button>
+                        </div>
+                        <button class="btn-outline-custom btn-sm-custom" id="btn-run-fast-algorithm" title="Быстро рассчитать результат без сохранения подробной истории шагов"><i data-lucide="bolt"></i> Рассчитать без визуализации</button>
+                        <div class="toolbar-divider"></div>
+                        <div class="speed-slider">
+                            <label class="control-label"><i data-lucide="tachometer-alt"></i> <span class="inline-help" title="Скорость отвечает за паузу между шагами визуализации"><i data-lucide="help-circle"></i></span></label>
+                            <input type="range" id="range-speed" min="100" max="3000" value="800" step="100" title="Меньше значение — быстрее визуализация">
+                            <span class="speed-value" id="speed-value">800мс</span>
+                        </div>
+                    </div>
+
+                    <div class="fast-mode-hint" id="fast-mode-hint" style="display:none;">
+                        <i data-lucide="bolt"></i>
+                        <span>Для графов больше 100 вершин рекомендуется режим «Только расчёт».</span>
+                    </div>
+
+                    <div class="negative-weight-warning" id="negative-weight-warning" style="display:none;">
+                        <i data-lucide="alert-triangle"></i>
+                        <span>В графе есть отрицательные веса. Дейкстра недоступна: выберите Беллмана-Форда или Флойда-Уоршелла.</span>
+                    </div>
+
+                    <!-- Step Description -->
+                    <div class="step-info-panel" id="step-description">
+                        <i data-lucide="info"></i>
+                        <span>Выберите начальную и конечную вершины, затем нажмите «Запустить»</span>
+                        <span class="step-counter" id="step-counter"></span>
+                    </div>
+
+                    <!-- Cytoscape for Algorithm -->
+                    <div class="cy-container-wrapper cy-fill">
+                        <div id="cy-algorithm"></div>
+                    </div>
+                </div>
+
+                <!-- Algorithm Sidebar -->
+                <div class="sidebar">
+                    <!-- Path Result -->
+                    <div id="path-result" style="display:none;">
+                        <div class="path-result-card">
+                            <h4><i data-lucide="route"></i> Кратчайший путь</h4>
+                            <div class="algorithm-result-name" id="algorithm-result-name">—</div>
+                            <div class="path-display" id="path-display">—</div>
+                            <div class="path-stats">
+                                <div class="path-stat"><span class="stat-value" id="path-cost">—</span><span class="stat-label">Стоимость</span></div>
+                                <div class="path-stat"><span class="stat-value" id="path-steps">—</span><span class="stat-label">Шагов</span></div>
+                                <div class="path-stat"><span class="stat-value" id="path-time">—</span><span class="stat-label">Время</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Results -->
+                    <div id="export-results-section" style="display:none;" class="mt-3">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn-outline-custom btn-sm-custom" id="btn-export-txt" title="TXT: экспортировать результат поиска кратчайшего пути"><i data-lucide="file-alt"></i> TXT</button>
+                            <button class="btn-outline-custom btn-sm-custom" id="btn-export-results-json" title="JSON: экспортировать результат алгоритма в структурированном виде"><i data-lucide="file-code"></i> JSON</button>
+                            <button class="btn-outline-custom btn-sm-custom" id="btn-export-pdf" title="PDF: сформировать отчёт по последнему запуску алгоритма"><i data-lucide="file-pdf"></i> PDF</button>
+                        </div>
+                    </div>
+
+                    <!-- Queue Display -->
+                    <div class="sidebar-section mt-3">
+                        <div class="section-header"><i data-lucide="layers"></i> Очередь приоритетов</div>
+                        <div class="section-body">
+                            <div class="queue-display" id="queue-display">
+                                <span class="hint-text">Очередь пуста</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Algorithm Legend -->
+                    <div class="sidebar-section">
+                        <div class="section-header"><i data-lucide="palette"></i> Легенда</div>
+                        <div class="section-body">
+                            <div class="algorithm-legend">
+                                <div class="legend-item"><span class="legend-dot legend-blue"></span><span>Синий — не обработана</span></div>
+                                <div class="legend-item"><span class="legend-dot legend-yellow"></span><span>Жёлтый — в очереди</span></div>
+                                <div class="legend-item"><span class="legend-dot legend-green"></span><span>Зелёный — обработана</span></div>
+                                <div class="legend-item"><span class="legend-dot legend-red"></span><span>Красный — кратчайший путь</span></div>
+                                <div class="legend-item"><span class="legend-infinity">∞</span><span>Вершина недостижима</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Node -->
+                    <div class="sidebar-section">
+                        <div class="section-header"><i data-lucide="bullseye"></i> Текущая вершина</div>
+                        <div class="section-body">
+                            <div id="current-node-display" class="text-muted current-node-text">—</div>
+                        </div>
+                    </div>
+
+                    <!-- Distance Table -->
+                    <div class="sidebar-section">
+                        <div class="section-header"><i data-lucide="table"></i> Таблица расстояний</div>
+                        <div class="section-body">
+                            <div class="distance-table-container">
+                                <table class="distance-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="sortable-th active" data-sort="node" title="Сортировать по номеру вершины">Вершина <i data-lucide="sort"></i></th>
+                                            <th class="sortable-th" data-sort="distance" title="Сортировать по расстоянию">Расстояние <i data-lucide="sort"></i></th>
+                                            <th class="sortable-th" data-sort="predecessor" title="Сортировать по предшественнику">Предшест. <i data-lucide="sort"></i></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="distance-table-body">
+                                        <tr><td colspan="3" class="cell-placeholder">Запустите алгоритм</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floyd-Warshall Matrix -->
+                    <div class="sidebar-section" id="floyd-matrix-section" style="display:none;">
+                        <div class="section-header"><i data-lucide="layout-grid"></i> Матрица расстояний</div>
+                        <div class="section-body">
+                            <div class="floyd-matrix-container" id="floyd-matrix-display">
+                                <span class="hint-text">Запустите Флойда-Уоршелла</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB 3: PERFORMANCE ===== -->
+        <div class="tab-pane fade" id="tab-performance" role="tabpanel">
+            <div class="workspace-page-shell performance-page">
+                <div class="workspace-page-header">
+                    <div>
+                        <span class="workspace-kicker">Анализ</span>
+                        <h1>Производительность алгоритмов</h1>
+                        <p>Сравнение времени работы Дейкстры, Беллмана-Форда и Флойда-Уоршелла на графах разного размера.</p>
+                    </div>
+                    <div class="workspace-header-metrics" aria-label="Ключевые ограничения">
+                        <div class="workspace-metric"><span>Режим</span><strong>Benchmark</strong></div>
+                        <div class="workspace-metric"><span>Шаги</span><strong>off</strong></div>
+                        <div class="workspace-metric"><span>Графы</span><strong>10-1000</strong></div>
+                    </div>
+                </div>
+                <div class="performance-layout">
+                <div class="card-custom" data-aos="fade-up">
+                    <div class="card-header-custom"><i data-lucide="bar-chart-2"></i> Анализ производительности</div>
+                    <div class="card-body-custom">
+                        <div class="benchmark-controls">
+                            <button class="btn-primary-custom" id="btn-run-benchmark" title="Запустить измерение производительности алгоритма на графах разных размеров"><i data-lucide="rocket"></i> Запустить бенчмарк</button>
+                            <div class="benchmark-algorithm-selector" aria-label="Алгоритмы для бенчмарка">
+                                <label><input type="checkbox" id="bench-dijkstra" checked> Дейкстра</label>
+                                <label><input type="checkbox" id="bench-bellman-ford" checked> Беллмана-Форда</label>
+                                <label><input type="checkbox" id="bench-floyd-warshall"> Флойда-Уоршелла</label>
+                            </div>
+                            <span class="hint-text">Флойд-Уоршелл тестируется на меньших размерах из-за O(V³).</span>
+                        </div>
+                        <div class="benchmark-progress" id="benchmark-progress">
+                            <div class="spinner"></div>
+                            <span id="benchmark-progress-text">Выполняется тестирование...</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-performance"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-custom" data-aos="fade-up">
+                    <div class="card-header-custom"><i data-lucide="table"></i> Результаты тестирования</div>
+                    <div class="card-body-custom">
+                        <div class="table-responsive">
+                            <table class="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Алгоритм</th>
+                                        <th>Вершин</th>
+                                        <th>Рёбер</th>
+                                        <th>Время</th>
+                                        <th>Операций</th>
+                                        <th>Теория</th>
+                                        <th>Коэффициент</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="performance-table-body">
+                                    <tr><td colspan="7" class="cell-placeholder-lg"><i data-lucide="bar-chart-2" class="app-icon"></i>Нажмите «Запустить бенчмарк» для начала тестирования</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB 4: THEORY ===== -->
+        <div class="tab-pane fade" id="tab-theory" role="tabpanel">
+            <div id="theory-container"></div>
+        </div>
+
+        <!-- ===== TAB 5: ABOUT ===== -->
+        <div class="tab-pane fade" id="tab-about" role="tabpanel">
+            <div class="workspace-page-shell about-page">
+                <div id="about-particles" class="about-particles" aria-hidden="true"></div>
+                <div class="workspace-page-header">
+                    <div>
+                        <span class="workspace-kicker">О проекте</span>
+                        <h1>Визуализатор алгоритмов на графах</h1>
+                        <p>Интерактивная образовательная система для изучения и сравнения алгоритмов кратчайших путей: Дейкстры, Беллмана-Форда и Флойда-Уоршелла.</p>
+                    </div>
+                </div>
+                <div class="about-grid">
+                    <!-- Project Info -->
+                    <div class="about-card" data-aos="fade-up">
+                        <div class="about-card-header"><h3><i data-lucide="info"></i> О проекте</h3></div>
+                        <div class="about-card-body">
+                            <p><strong>Название:</strong> Программная реализация алгоритмов нахождения кратчайших путей в графах</p>
+                            <p><strong>Цель:</strong> Разработка интерактивной образовательной системы, позволяющей изучать, визуализировать и сравнивать алгоритмы Дейкстры, Беллмана-Форда и Флойда-Уоршелла.</p>
+                            <p><strong>Тип проекта:</strong> Курсовая работа</p>
+                        </div>
+                    </div>
+
+                    <!-- Technologies -->
+                    <div class="about-card" data-aos="fade-up">
+                        <div class="about-card-header"><h3><i data-lucide="tools"></i> Технологии</h3></div>
+                        <div class="about-card-body">
+                            <div class="tech-list">
+                                <span class="tech-badge"><i data-lucide="html5"></i> HTML5</span>
+                                <span class="tech-badge"><i data-lucide="css3-alt"></i> CSS3</span>
+                                <span class="tech-badge"><i data-lucide="js-square"></i> JavaScript ES6+</span>
+                                <span class="tech-badge"><i data-lucide="network"></i> Cytoscape.js</span>
+                                <span class="tech-badge"><i data-lucide="bar-chart-2"></i> Chart.js</span>
+                                <span class="tech-badge"><i data-lucide="bootstrap"></i> Bootstrap 5</span>
+                                <span class="tech-badge"><i data-lucide="icons"></i> Font Awesome</span>
+                                <span class="tech-badge"><i data-lucide="database"></i> LocalStorage</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modules -->
+                    <div class="about-card" data-aos="fade-up">
+                        <div class="about-card-header"><h3><i data-lucide="cubes"></i> Модули системы</h3></div>
+                        <div class="about-card-body">
+                            <ul class="module-list">
+                                <li><i data-lucide="pen-tool"></i> <strong>Конструктор графов</strong> — визуальный редактор</li>
+                                <li><i data-lucide="play-circle"></i> <strong>Алгоритмы кратчайших путей</strong> — пошаговая визуализация и быстрый расчёт</li>
+                                <li><i data-lucide="bar-chart-2"></i> <strong>Производительность</strong> — бенчмарки и графики</li>
+                                <li><i data-lucide="book-open"></i> <strong>Теоретический модуль</strong> — обучающие материалы</li>
+                                <li><i data-lucide="save"></i> <strong>Хранение данных</strong> — JSON/LocalStorage</li>
+                                <li><i data-lucide="shuffle"></i> <strong>Генератор графов</strong> — случайные графы</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Architecture -->
+                    <div class="about-card" data-aos="fade-up">
+                        <div class="about-card-header"><h3><i data-lucide="sitemap"></i> Архитектура</h3></div>
+                        <div class="about-card-body">
+                            <ul class="module-list">
+                                <li><i data-lucide="file-code"></i> <strong>graph.js</strong> — структура данных графа</li>
+                                <li><i data-lucide="file-code"></i> <strong>dijkstra.js</strong> — реализация алгоритма</li>
+                                <li><i data-lucide="file-code"></i> <strong>bellman-ford.js</strong> — отрицательные веса и циклы</li>
+                                <li><i data-lucide="file-code"></i> <strong>floyd-warshall.js</strong> — все пары кратчайших путей</li>
+                                <li><i data-lucide="file-code"></i> <strong>undo-redo.js</strong> — отмена и повтор действий</li>
+                                <li><i data-lucide="file-code"></i> <strong>visualizer.js</strong> — движок визуализации</li>
+                                <li><i data-lucide="file-code"></i> <strong>ui.js</strong> — главный контроллер</li>
+                                <li><i data-lucide="file-code"></i> <strong>performance.js</strong> — анализ производительности</li>
+                                <li><i data-lucide="file-code"></i> <strong>storage.js</strong> — сохранение/загрузка</li>
+                                <li><i data-lucide="file-code"></i> <strong>theory.js</strong> — теоретические материалы</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Help -->
+                    <div class="about-card" data-aos="fade-up">
+                        <div class="about-card-header"><h3><i data-lucide="graduation-cap"></i> Обучение</h3></div>
+                        <div class="about-card-body">
+                            <p>Если нужно заново показать приветственное окно, сбросьте отметку первого запуска.</p>
+                            <button class="btn-primary-custom btn-sm-custom" id="btn-show-welcome-again" type="button" title="Показать приветствие снова при следующем запуске или сразу сейчас"><i data-lucide="rotate-left"></i> Показать приветствие снова</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Modal: Edit Edge Weight -->
+<div class="modal fade" id="modal-edge-weight" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i data-lucide="weight"></i> Вес ребра</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label-custom">Укажите вес ребра</label>
+                <input type="number" class="form-control-custom" id="input-edge-weight" value="1" min="-999" max="999" title="Вес ребра должен быть конечным числом. Дейкстра не поддерживает отрицательные веса.">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline-custom btn-sm-custom" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn-primary-custom btn-sm-custom" id="btn-save-weight">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Rename Node -->
+<div class="modal fade" id="modal-rename-node" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i data-lucide="tag"></i> Имя вершины</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label-custom">Введите имя</label>
+                <input type="text" class="form-control-custom" id="input-node-name" maxlength="10" placeholder="Например, A">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline-custom btn-sm-custom" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn-primary-custom btn-sm-custom" id="btn-save-node-name">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Restore Autosave -->
+<div class="modal fade" id="modal-autosave-restore" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i data-lucide="clock-rotate-left"></i> Восстановить последний граф?</h5>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">Найдено автосохранённое состояние прошлого сеанса.</p>
+                <div class="autosave-summary" id="autosave-summary">Граф готов к восстановлению.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline-custom btn-sm-custom" id="btn-discard-autosave">Начать заново</button>
+                <button type="button" class="btn-primary-custom btn-sm-custom" id="btn-restore-autosave"><i data-lucide="rotate-left"></i> Восстановить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Save Graph -->
+<div class="modal fade" id="modal-save-graph" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i data-lucide="save"></i> Сохранить граф</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label-custom">Название графа</label>
+                <input type="text" class="form-control-custom" id="input-graph-name" placeholder="Мой граф">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline-custom btn-sm-custom" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn-primary-custom btn-sm-custom" id="btn-confirm-save">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cytoscape.js -->
+<script src="vendor/cytoscape/cytoscape.min.js"></script>
+<!-- Chart.js -->
+<script src="vendor/chartjs/chart.umd.min.js"></script>
+<!-- jsPDF -->
+<script src="vendor/jspdf/jspdf.umd.min.js"></script>
+<!-- Bootstrap 5.3.3 JS Bundle -->
+<script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+
+<!-- Optional visual-enhancement libraries (defensive: app works without them) -->
+<script src="vendor/countup/countUp.umd.js"></script>
+<script src="vendor/aos/aos.js"></script>
+<script src="vendor/animejs/anime.min.js"></script>
+<script src="vendor/particles/particles.min.js"></script>
+
+<!-- Local icon renderer -->
+<script src="js/icons.js"></script>
+
+<!-- Dependency check -->
+<script src="js/dependency-check.js"></script>
+<!-- Local JS -->
+<script src="js/graph.js"></script>
+<script src="js/dijkstra.js"></script>
+<script src="js/bellman-ford.js"></script>
+<script src="js/floyd-warshall.js"></script>
+<script src="js/visualizer.js"></script>
+<script src="js/performance.js"></script>
+<script src="js/app-utils.js"></script>
+<script src="js/undo-redo.js"></script>
+<script src="js/pdf-font.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/theory.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/help.js"></script>
+<!-- Optional visual enhancements (CountUp / AOS / particles / anime) -->
+<script src="js/enhancements.js"></script>
+
+<!-- Скользящий индикатор активной вкладки -->
+<script src="js/segmented-tabs.js"></script>
+
+</body>
+</html>
