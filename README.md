@@ -41,6 +41,17 @@
 
 <br/>
 
+## 📸 Gallery <a id="gallery"></a>
+
+<p align="center">
+  <img src="assets/screenshots/algorithm.png" width="48%" style="border-radius: 8px;" />
+  <img src="assets/screenshots/constructor.png" width="48%" style="border-radius: 8px;" />
+</p>
+<p align="center">
+  <img src="assets/screenshots/theory.png" width="48%" style="border-radius: 8px;" />
+  <img src="assets/screenshots/performance.png" width="48%" style="border-radius: 8px;" />
+</p>
+
 ## 🇬🇧 English <a id="english"></a>
 
 > [!NOTE]
