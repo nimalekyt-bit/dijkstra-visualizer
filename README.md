@@ -1,67 +1,85 @@
-# 🗺️ Dijkstra Visualizer
+<div align="center">
+  <img src="https://placehold.co/100x100/1e1e1e/ffffff?text=DV" alt="Dijkstra Visualizer Logo" width="100" height="100" style="border-radius: 20%; margin-bottom: 20px;" />
 
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?logo=javascript&logoColor=black)]()
-[![HTML5](https://img.shields.io/badge/HTML5-Semantic-E34F26?logo=html5&logoColor=white)]()
-[![CSS3](https://img.shields.io/badge/CSS3-Styling-1572B6?logo=css3&logoColor=white)]()
+  # 🗺️ Pathfinding Visualizer
 
-*(Scroll down for Russian version / Прокрутите вниз для русской версии)*
+  **Interactive Educational Tool for Graph Algorithms**
 
-## 🇬🇧 English
+  [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)]()
+  [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)]()
+  [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)]()
+  
+  *Visualize Dijkstra, Bellman-Ford, and Floyd-Warshall step-by-step.*
 
-**Dijkstra Visualizer** is an interactive educational web application designed for building graphs, running shortest-path algorithms, and visualizing every step of the calculation in real time.
-
-Built initially as coursework, it is structured cleanly as a portfolio project: algorithm implementations are strictly decoupled from the UI, examples are stored as JSON data, and the core algorithmic logic is fully covered by unit tests.
-
-### ✨ Key Features
-- **Visual Graph Editor:** Create and edit directed and undirected graphs interactively.
-- **Step-by-Step Visualization:** Watch algorithms (Dijkstra, Bellman-Ford, Floyd-Warshall) execute node-by-node and edge-by-edge.
-- **Negative Weights:** Full support for negative edge weights (where the selected algorithm allows them).
-- **History & Reports:** Distance tables, path reconstruction, state history, and PDF/PNG report generation.
-- **Offline First:** LocalStorage autosave, light/dark themes, and all vendor assets included locally.
-
-### 🛠 Tech Stack
-- **Core:** Vanilla JavaScript (ES6+), HTML5, CSS3
-- **Visualization:** Cytoscape.js, Chart.js
-- **UI:** Bootstrap, Font Awesome
-- **Testing:** Unit tests for graph operations and shortest-path core
-
-### 🚀 Quick Start
-Simply open `index.html` in your browser:
-```bash
-start index.html
-```
-Or use a local server for the best experience:
-```bash
-npx serve .
-```
+  [English](#english) • [Русский](#русский)
+</div>
 
 ---
 
-## 🇷🇺 Русский
+<a id="english"></a>
+## 🇬🇧 English
 
-**Dijkstra Visualizer** — это интерактивное образовательное веб-приложение для построения графов, запуска алгоритмов поиска кратчайшего пути и визуализации каждого шага вычислений.
+Graph algorithms can be abstract and hard to grasp. **Pathfinding Visualizer** bridges the gap by letting you draw graphs interactively and watch shortest-path algorithms execute in real-time, step-by-step.
 
-Проект отлично демонстрирует навыки работы со структурами данных: алгоритмическое ядро полностью отделено от интерфейса, логика покрыта тестами, а данные графов экспортируются в JSON.
+Built as a portfolio project, it boasts a clean architecture where the core algorithmic logic (pure JavaScript) is strictly decoupled from the UI layer.
 
-### ✨ Главные возможности
-- **Визуальный редактор графов:** Создание ориентированных и неориентированных графов мышкой.
-- **Пошаговая визуализация:** Наблюдение за работой алгоритмов (Дейкстра, Беллман-Форд, Флойд-Уоршелл) шаг за шагом.
-- **Отрицательные веса:** Поддержка отрицательных весов ребер (для алгоритмов, которые их поддерживают).
-- **Аналитика:** Таблицы расстояний, реконструкция пути, графики производительности и экспорт отчетов в PDF/PNG.
-- **Локальная работа:** Автосохранение в LocalStorage, темная/светлая тема, работа без интернета (все библиотеки локальны).
+### ✨ Features
 
-### 🛠 Стек технологий
-- **Core:** Vanilla JavaScript (ES6+), HTML5, CSS3
-- **Визуализация:** Cytoscape.js, Chart.js
-- **UI/UX:** Bootstrap, Font Awesome
-- **Тестирование:** Unit-тесты для алгоритмов поиска кратчайшего пути
+- 🏗️ **Interactive Canvas**: Click and drag to create nodes, directed/undirected edges, and assign weights (including negative ones!).
+- 🔍 **Step-by-Step Execution**: Pause, rewind, or fast-forward through the algorithm's decision-making process.
+- 📊 **Real-time Analytics**: Watch distance tables update live, reconstruct shortest paths, and view algorithm state history.
+- 🚀 **Performance Benchmarks**: Generate large random graphs to compare the time complexity of different algorithms.
+- 💾 **Export & Save**: Save your graphs to JSON, or generate beautiful PDF/PNG reports of your findings.
+- 🌙 **Dark Mode Ready**: A polished UI with local vendor assets, meaning it works 100% offline.
 
-### 🚀 Быстрый старт
-Просто откройте файл `index.html` в браузере:
+<br>
+
+<div align="center">
+  <!-- TODO: Replace with actual GIF or screenshot -->
+  <img src="https://placehold.co/800x400/1e1e1e/ffffff?text=Drop+your+awesome+screenshot+here" alt="Visualizer Demo" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+</div>
+
+<br>
+
+### 🛠 Architecture & Stack
+
+Unlike many visualizers that tangle UI code with logic, this project isolates the math:
+- **Core Algorithms**: Vanilla ES6+ JavaScript (Fully Unit-Tested).
+- **Rendering Engine**: `Cytoscape.js` for high-performance canvas drawing.
+- **Data Visualization**: `Chart.js` for complexity graphs.
+
+### 🚀 Try It Now
+
+No build steps required. Just clone and open!
 ```bash
+git clone https://github.com/nimalekyt-bit/dijkstra-visualizer.git
+cd dijkstra-visualizer
+# Open index.html in your favorite browser!
 start index.html
 ```
-Или используйте любой локальный сервер:
+
+<br><br>
+
+---
+
+<a id="русский"></a>
+## 🇷🇺 Русский
+
+**Pathfinding Visualizer** — это интерактивное веб-приложение, которое позволяет рисовать графы и наблюдать за работой алгоритмов поиска кратчайшего пути (Дейкстра, Беллман-Форд, Флойд-Уоршелл) в реальном времени.
+
+Проект создан с упором на чистую архитектуру: математическое ядро полностью независимо от интерфейса и покрыто Unit-тестами.
+
+### ✨ Главные фичи
+
+- 🏗️ **Визуальный редактор**: Создавайте узлы и ребра в пару кликов. Поддерживаются ориентированные графы и отрицательные веса.
+- 🔍 **Пошаговая визуализация**: Наблюдайте, как алгоритм проверяет соседние вершины и обновляет таблицу расстояний.
+- 📊 **Аналитика и отчеты**: Сравнивайте скорость алгоритмов на графиках и экспортируйте результаты в PDF или PNG.
+- 💾 **Работа оффлайн**: Проект не требует интернета (все библиотеки скачаны локально) и умеет сохранять ваши графы в LocalStorage.
+
+### 🚀 Запуск
+Просто скачайте репозиторий и откройте `index.html`:
 ```bash
-npx serve .
+git clone https://github.com/nimalekyt-bit/dijkstra-visualizer.git
+cd dijkstra-visualizer
+start index.html
 ```
